@@ -4,6 +4,8 @@ namespace WeStacks\TeleBot;
 
 use DOMDocument;
 use DOMElement;
+use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\PhpNamespace;
 use Soundasleep\Html2Text;
 
 final class BotApiParser
@@ -65,23 +67,8 @@ final class BotApiParser
 
     public function generate()
     {
-        foreach ($this->methods as $name => $options) {
-            $params = collect($options['parameters'])->map(function ($data) {
-                return "        '{$data[0]}' => '{$data[1]}'";
-            })->toArray();
-
-            $data = file_get_contents(__DIR__.'/../stubs/Method.stub');
-            $data = str_replace("{{ class }}", $options['name'], $data);
-            $data = str_replace("{{ method }}", $name, $data);
-            $data = str_replace("{{ parameters }}", implode(','.PHP_EOL, $params), $data);
-
-            echo __DIR__."/New/Methods/".$options['name'].".php".PHP_EOL;
-
-            file_put_contents(
-                __DIR__."/New/Methods/".$options['name'].".php",
-                $data
-            );
-        }
+        $this->generateObjects();
+        $this->generateMethods();
     }
 
     private function isMethod(DOMElement $h4)
@@ -122,20 +109,83 @@ final class BotApiParser
     {
         /** @var DOMElement */
         foreach ($table->getElementsByTagName('tbody')[0]->getElementsByTagName('tr') as $node) {
-            $data[] = collect($node->getElementsByTagName('td'))
-                ->map(function ($node) {
+            $data[] = array_map(function ($node) {
                     $md = $this->parseHTML($node->ownerDocument->saveHTML($node));
 
                     if (preg_match("/(Array of )?\[([A-Z][a-zA-Z]*)\]\(#[a-z]*\)/m", $md, $matches)) {
+                        var_dump($matches); die();
                         $md = $matches[1] == 'Array of ' ?
                             ["WeStacks\\TeleBot\\Objects\\{$matches[2]}"] :
                             "WeStacks\\TeleBot\\Objects\\{$matches[1]}";
                     }
 
                     return $md;
-                })
-                ->toArray();
+                }, iterator_to_array($node->getElementsByTagName('td')));
         }
         return $data;
+    }
+
+    private function generateMethods()
+    {
+        foreach ($this->methods as $name => $options) {
+            $namespace = new PhpNamespace('App\\Methods');
+            $namespace->addUse(\WeStacks\TeleBot\Interfaces\TelegramMethod::class);
+
+            $class = new ClassType($options['name']);
+            $class->setExtends(\WeStacks\TeleBot\Interfaces\TelegramMethod::class);
+
+            $class->addProperty('method', $name)
+                ->setType('string')
+                ->setProtected();
+
+            $class->addProperty('expect', 'boolean')
+                ->setType('string')
+                ->setProtected();
+
+            $class->addProperty('parameters', $this->createParams($options['parameters']))
+                ->setType('array')
+                ->setProtected();
+
+            $namespace->add($class);
+
+            echo __DIR__."/New/Methods/".$options['name'].".php".PHP_EOL;
+
+            file_put_contents(
+                __DIR__."/New/Methods/".$options['name'].".php",
+                "<?php\n\n" . $namespace
+            );
+        }
+    }
+
+    private function generateObjects()
+    {
+        foreach ($this->objects as $name => $options) {
+            $namespace = new PhpNamespace('App\\Objects');
+            $namespace->addUse(\WeStacks\TeleBot\Interfaces\TelegramObject::class);
+
+            $class = new ClassType($name);
+            $class->setExtends(\WeStacks\TeleBot\Interfaces\TelegramObject::class);
+
+            $class->addProperty('attributes', $this->createParams($options['attributes']))
+                ->setType('array')
+                ->setProtected();
+
+            $namespace->add($class);
+
+            echo __DIR__."/New/Objects/".$name.".php".PHP_EOL;
+
+            file_put_contents(
+                __DIR__."/New/Objects/".$name.".php",
+                "<?php\n\n" . $namespace
+            );
+        }
+    }
+
+    private function createParams(array $params)
+    {
+        foreach ($params as $param) {
+            $res[$param[0]] = $param[1];
+        }
+        return $res;
     }
 }
