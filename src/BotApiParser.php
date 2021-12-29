@@ -6,6 +6,7 @@ use DOMDocument;
 use DOMElement;
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
+use Nette\PhpGenerator\PsrPrinter;
 use Soundasleep\Html2Text;
 
 final class BotApiParser
@@ -113,10 +114,9 @@ final class BotApiParser
                     $md = $this->parseHTML($node->ownerDocument->saveHTML($node));
 
                     if (preg_match("/(Array of )?\[([A-Z][a-zA-Z]*)\]\(#[a-z]*\)/m", $md, $matches)) {
-                        var_dump($matches); die();
                         $md = $matches[1] == 'Array of ' ?
                             ["WeStacks\\TeleBot\\Objects\\{$matches[2]}"] :
-                            "WeStacks\\TeleBot\\Objects\\{$matches[1]}";
+                            "WeStacks\\TeleBot\\Objects\\{$matches[2]}";
                     }
 
                     return $md;
@@ -159,12 +159,23 @@ final class BotApiParser
 
     private function generateObjects()
     {
+        $printer = new PsrPrinter;
+
         foreach ($this->objects as $name => $options) {
             $namespace = new PhpNamespace('App\\Objects');
             $namespace->addUse(\WeStacks\TeleBot\Interfaces\TelegramObject::class);
 
             $class = new ClassType($name);
-            $class->setExtends(\WeStacks\TeleBot\Interfaces\TelegramObject::class);
+            $class->setExtends(\WeStacks\TeleBot\Interfaces\TelegramObject::class)
+                ->addComment($options['description']."\n");
+
+            foreach ($options['attributes'] as $option) {
+                $class->addComment("@property {$option[1]} \${$option[0]} {$option[2]}");
+                if (is_array($option[1])) $option[1] = $option[1][0];
+                if (class_exists($option[1]) && $option[1] != 'WeStacks\\TeleBot\\Objects\\'.$name) {
+                    $namespace->addUse($option[1]);
+                }
+            }
 
             $class->addProperty('attributes', $this->createParams($options['attributes']))
                 ->setType('array')
@@ -176,16 +187,26 @@ final class BotApiParser
 
             file_put_contents(
                 __DIR__."/New/Objects/".$name.".php",
-                "<?php\n\n" . $namespace
+                "<?php\n\n" . $this->resetClassNames($printer->printNamespace($namespace))
             );
         }
     }
 
     private function createParams(array $params)
     {
+        $res = [];
         foreach ($params as $param) {
             $res[$param[0]] = $param[1];
         }
         return $res;
+    }
+
+    private function resetClassNames($phpNamespace)
+    {
+        while (preg_match('/\'WeStacks\\\\TeleBot\\\\Objects\\\\([a-zA-Z0-9]*)\'/m', (string) $phpNamespace, $matches)) {
+            $phpNamespace = preg_replace('/\'WeStacks\\\\TeleBot\\\\Objects\\\\([a-zA-Z0-9]*)\'/m', $matches[1].'::class', (string) $phpNamespace, 1);
+        }
+
+        return $phpNamespace;
     }
 }
