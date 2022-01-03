@@ -5,11 +5,11 @@ namespace WeStacks\TeleBot\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use WeStacks\TeleBot\Exception\TeleBotObjectException;
 use WeStacks\TeleBot\Objects\InputMedia;
-use WeStacks\TeleBot\Objects\InputMedia\InputMediaAnimation;
-use WeStacks\TeleBot\Objects\InputMedia\InputMediaAudio;
-use WeStacks\TeleBot\Objects\InputMedia\InputMediaDocument;
-use WeStacks\TeleBot\Objects\InputMedia\InputMediaPhoto;
-use WeStacks\TeleBot\Objects\InputMedia\InputMediaVideo;
+use WeStacks\TeleBot\Objects\InputMediaAnimation;
+use WeStacks\TeleBot\Objects\InputMediaAudio;
+use WeStacks\TeleBot\Objects\InputMediaDocument;
+use WeStacks\TeleBot\Objects\InputMediaPhoto;
+use WeStacks\TeleBot\Objects\InputMediaVideo;
 
 class InputMediaTest extends TestCase
 {

@@ -3,101 +3,52 @@
 namespace WeStacks\TeleBot\Abstract;
 
 use GuzzleHttp\Client;
-use WeStacks\TeleBot\Exception\TeleBotMehtodException;
+use Psr\Http\Message\ResponseInterface;
 use WeStacks\TeleBot\Exception\TeleBotRequestException;
 use WeStacks\TeleBot\Helpers\TypeCaster;
-use WeStacks\TeleBot\Traits\HasTelegramMethods;
 
 abstract class TelegramMethod
 {
-    use HasTelegramMethods;
+    /**
+     * Method name.
+     */
+	protected string $method;
 
     /**
-     * Method arguments.
-     *
-     * @var array
+     * Method parameters and their types.
      */
-    protected $arguments;
+    protected array $parameters;
 
     /**
-     * Bot API token.
-     *
-     * @var string
+     * Method expected return type.
      */
-    protected $token;
-
-    /**
-     * API URL
-     * 
-     * @var string
-     */
-    protected $api;
+	protected string $expect;
 
     /**
      * Create new method instance.
      */
-    public function __construct(string $api, string $token, array $data = null)
+    public function __construct(
+        protected string $api,
+        protected string $token,
+        protected Client &$client,
+        protected bool $exceptions,
+        protected bool $async,
+    ) {}
+
+    public function __invoke($arguments = [])
     {
-        $this->api = $api;
-        $this->token = $token;
-        $this->arguments = $data ?? [];
+        $promise = $this->client->postAsync("{$this->api}/bot{$this->token}/{$this->method}", [
+            'multipart' => TypeCaster::flatten($arguments, $this->parameters)
+        ])->then(function (ResponseInterface $result) {
+            $result = json_decode($result->getBody());
+
+            if (!$result->ok && $this->exceptions) {
+                throw TeleBotRequestException::requestError($result);
+            }
+
+            return $result->ok ? TypeCaster::cast($result->result, $this->expect) : false;
+        });
+
+        return $this->async ? $promise : $promise->wait();
     }
-
-    /**
-     * Create new method instance.
-     * 
-     * @param string $method
-     * @param string $api
-     * @param string $token
-     * @param array|null $data
-     * 
-     * @return TelegramMethod
-     * 
-     * @throws TeleBotMehtodException
-     */
-    public static function create(string $method, string $api, string $token, array $data = null)
-    {
-        if (!$Method = static::method($method)) {
-            throw TeleBotMehtodException::methodNotFound($method);
-        }
-
-        return new $Method($api, $token, $data);
-    }
-
-    /**
-     * Execute method.
-     *
-     * @param Client $client     Guzzle http client
-     * @param bool   $exceptions Throws exceptions if true
-     * @param bool   $async      Execute request asynchronously
-     *
-     * @return mixed
-     */
-    public function execute(Client &$client, $exceptions = true, $async = false)
-    {
-        $config = $this->request();
-
-        $promise = $client->requestAsync($config['type'], $config['url'], $config['send'])
-            ->then(function ($result) use ($config, $exceptions) {
-                $result = json_decode($result->getBody());
-                if ($result->ok) {
-                    return TypeCaster::cast($result->result, $config['expect']);
-                }
-                if ($exceptions) {
-                    throw TeleBotRequestException::requestError($result);
-                }
-
-                return false;
-            })
-        ;
-
-        return $async ? $promise : $promise->wait();
-    }
-
-    /**
-     * This function should return HTTP configuration for given method.
-     *
-     * @return array
-     */
-    abstract protected function request();
 }

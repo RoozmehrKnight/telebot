@@ -7,7 +7,7 @@ use WeStacks\TeleBot\TeleBot;
 
 /**
  * Abstract class for creating Telegram update handlers.
- * 
+ *
  * @method Array<BotCommand>|false|PromiseInterface    getMyCommands()                                         Use this method to get the current list of the bot's commands. Requires no parameters. Returns Array of BotCommand on success.
  * @method Array<ChatMember>|false|PromiseInterface    getChatAdministrators(array $parameters = [])           Use this method to get a list of administrators in a chat. On success, returns an Array of ChatMember objects that contains information about all chat administrators except other bots. If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
  * @method Array<GameHighScore>|false|PromiseInterface getGameHighScores(array $parameters = [])               Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. On success, returns an Array of GameHighScore objects.

@@ -4,6 +4,7 @@ namespace WeStacks\TeleBot;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\PromiseInterface;
+use WeStacks\TeleBot\Exception\TeleBotMehtodException;
 use WeStacks\TeleBot\Exception\TeleBotObjectException;
 use WeStacks\TeleBot\Interfaces\TelegramMethod;
 use WeStacks\TeleBot\Traits\HandlesUpdates;
@@ -184,14 +185,22 @@ class TeleBot
 
     public function __call(string $method, array $arguments)
     {
-        $method = TelegramMethod::create($method, $this->config['api_url'], $this->config['token'], $arguments);
-        $exceptions = $this->exceptions ?? $this->config['exceptions'];
-        $async = $this->async ?? $this->config['async'];
+        if (!$Method = static::method($method)) {
+            throw TeleBotMehtodException::methodNotFound($method);
+        }
+
+        $method = new $Method(
+            $this->config['api_url'],
+            $this->config['token'],
+            $this->client,
+            $this->exceptions ?? $this->config['exceptions'],
+            $this->async ?? $this->config['async']
+        );
 
         $this->exceptions = null;
         $this->async = null;
 
-        return $method->execute($this->client, $exceptions, $async);
+        return $method(...$arguments);
     }
 
     public function __get(string $name)

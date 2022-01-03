@@ -15,26 +15,27 @@ abstract class TelegramObject implements IteratorAggregate
 {
     /**
      * Array of object properties.
-     *
-     * @var array
      */
-    protected $properties;
+    protected array $properties = [];
+
+    /**
+     * Array representation of given object attributes, where `$key` - is property name and `$value` - property type.
+     */
+    protected array $attributes = [];
 
     /**
      * Create new Telegram object instance.
      *
-     * @param array|object $object
-     *
      * @throws TeleBotObjectException
      */
-    public function __construct($object)
+    public function __construct(array|object $object)
     {
-        $this->properties = TypeCaster::castValues($object, $this->relations());
+        $this->properties = TypeCaster::castValues($object, $this->attributes);
     }
 
     public function __get($key)
     {
-        return $this->properties[$key];
+        return $this->properties[$key] ?? NULL;
     }
 
     public function __set($key, $value)
@@ -65,13 +66,10 @@ abstract class TelegramObject implements IteratorAggregate
     /**
      * Create new Telegram object instance.
      *
-     * @param array|object $object
-     *
      * @throws TeleBotObjectException
-     *
-     * @return TelegramObject
+     * @return static
      */
-    public static function create($object)
+    public static function create(array|object $object)
     {
         return new static($object);
     }
@@ -87,7 +85,7 @@ abstract class TelegramObject implements IteratorAggregate
     }
 
     /**
-     * Get associative array representation of this object.
+     * Get json representation of this object.
      *
      * @return string
      */
@@ -100,69 +98,30 @@ abstract class TelegramObject implements IteratorAggregate
      * Seek through object properties using dot notation
      * Example: ```get('message.from.id')```.
      *
-     * @param string $property  string in dot notation
-     * @param bool   $exceprion if true, function will throm `TeleBotObjectException` if property is not found, else return null
+     * @param string $property  String in dot notation format
+     * @param mixed  $default  The default return value if given key is not exists
      *
      * @throws WeStacks\TeleBot\Exception\TeleBotObjectException
      *
      * @return mixed
      */
-    public function get(string $property, bool $exception = false)
+    public function get(string $property, $default = null)
     {
-        $validate = '/(?:([^\\s\\.\\[\\]]+)(?:\\[([0-9])\\])?)/';
-        $data = $this;
+        $data = $this->properties;
 
-        try {
-            if (preg_match_all($validate, $property, $matches, PREG_SET_ORDER)) {
-                foreach ($matches as $match) {
-                    unset($match[0]);
-                    foreach ($match as $key) {
-                        $this->seek($data, $key);
-                    }
-                }
-            } else {
-                throw TeleBotObjectException::invalidDotNotation($property);
-            }
-        } catch (TeleBotObjectException $e) {
-            if ($exception) {
-                throw $e;
-            }
+        if (!preg_match("/\.[^.]/", $property) || preg_match("/\s+/", $property)) {
+            throw TeleBotObjectException::invalidDotNotation($property);
+        }
 
-            return null;
+        foreach (explode('.', $property) as $key) {
+            $data = is_array($data) ? ($data[$key] ?? null) : $data?->{$key} ?? $default;
         }
 
         return $data;
     }
 
-    /**
-     * Recieve iterator.
-     *
-     * @return Traversable
-     */
     public function getIterator(): Traversable
     {
         return new ArrayIterator($this->properties);
-    }
-
-    /**
-     * This function should return an array representation of given object properties, where `$key` - is property name and `$value` - property type.
-     *
-     * @return array
-     */
-    abstract protected function relations();
-
-    /**
-     * Try to dive `$data` into the `$key` property / array key.
-     *
-     * @param array|object $data
-     */
-    private function seek(&$data, string $key)
-    {
-        $seek = is_array($data) ? $data[$key] : $data->{$key} ?? null;
-        if ($seek) {
-            return $data = $seek;
-        }
-
-        throw TeleBotObjectException::undefinedOfset($key, is_array($data) ? gettype($data) : get_class($data));
     }
 }
