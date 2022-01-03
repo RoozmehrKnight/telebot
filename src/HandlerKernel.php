@@ -5,7 +5,7 @@ namespace WeStacks\TeleBot;
 use Exception;
 use WeStacks\TeleBot\Exception\TeleBotMehtodException;
 use WeStacks\TeleBot\Handlers\CommandHandler;
-use WeStacks\TeleBot\Interfaces\UpdateHandler;
+use WeStacks\TeleBot\Abstract\UpdateHandler;
 use WeStacks\TeleBot\Objects\BotCommand;
 use WeStacks\TeleBot\Objects\Update;
 

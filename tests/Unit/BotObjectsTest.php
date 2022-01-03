@@ -94,7 +94,9 @@ class BotObjectsTest extends TestCase
         ob_start();
         var_dump($this->object);
         $result = ob_get_clean();
-        $this->assertStringContainsString('WeStacks\\TeleBot\\Objects\\Update', $result);
+        $this->assertStringContainsString(Update::class, $result);
+        $this->assertStringContainsString(Message::class, $result);
+        $this->assertStringContainsString(User::class, $result);
     }
 
     public function testGetByDotNotation()
@@ -105,8 +107,8 @@ class BotObjectsTest extends TestCase
         $data = $this->object->get('some.undefined.variable');
         $this->assertNull($data);
 
-        $this->expectException(TeleBotObjectException::class);
-        $this->object->get('some.undefined.variable', true);
+        $data = $this->object->get('some.undefined.variable', true);
+        $this->assertTrue($data);
     }
 
     public function testDotNotationWrongString()

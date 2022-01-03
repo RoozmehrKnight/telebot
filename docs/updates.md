@@ -39,7 +39,7 @@ If you fire [bot method](methods#telebot-methods) on `UpdateHandler` instance, t
 
 namespace Somewhere\InYour\App;
 
-use WeStacks\TeleBot\Interfaces\UpdateHandler;
+use WeStacks\TeleBot\Abstract\UpdateHandler;
 use WeStacks\TeleBot\Objects\Update;
 use WeStacks\TeleBot\TeleBot;
 

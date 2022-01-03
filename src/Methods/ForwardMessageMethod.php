@@ -16,7 +16,7 @@ use WeStacks\TeleBot\Abstract\TelegramMethod;
 class ForwardMessageMethod extends TelegramMethod
 {
 	protected string $method = 'forwardMessage';
-	protected string $expect = 'MessageId';
+	protected string $expect = 'Message';
 
 	protected array $parameters = [
 		'chat_id' => 'string',

@@ -12,8 +12,8 @@ use WeStacks\TeleBot\Objects\ReplyKeyboardRemove;
  * Use this method to send information about a venue. On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
  *
  * @property string $chat_id __Required: Yes__. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
- * @property double number $latitude __Required: Yes__. Latitude of the venue
- * @property double number $longitude __Required: Yes__. Longitude of the venue
+ * @property double $latitude __Required: Yes__. Latitude of the venue
+ * @property double $longitude __Required: Yes__. Longitude of the venue
  * @property string $title __Required: Yes__. Name of the venue
  * @property string $address __Required: Yes__. Address of the venue
  * @property string $foursquare_id __Required: Optional__. Foursquare identifier of the venue
@@ -33,8 +33,8 @@ class SendVenueMethod extends TelegramMethod
 
 	protected array $parameters = [
 		'chat_id' => 'string',
-		'latitude' => 'double number',
-		'longitude' => 'double number',
+		'latitude' => 'double',
+		'longitude' => 'double',
 		'title' => 'string',
 		'address' => 'string',
 		'foursquare_id' => 'string',

@@ -9,10 +9,10 @@ use WeStacks\TeleBot\Abstract\TelegramObject;
  *
  * @property string $type Type of the result, must be location
  * @property string $id Unique identifier for this result, 1-64 Bytes
- * @property double number $latitude Location latitude in degrees
- * @property double number $longitude Location longitude in degrees
+ * @property double $latitude Location latitude in degrees
+ * @property double $longitude Location longitude in degrees
  * @property string $title Location title
- * @property double number $horizontal_accuracy Optional. The radius of uncertainty for the location, measured in meters; 0-1500
+ * @property double $horizontal_accuracy Optional. The radius of uncertainty for the location, measured in meters; 0-1500
  * @property integer $live_period Optional. Period in seconds for which the location can be updated, should be between 60 and 86400.
  * @property integer $heading Optional. For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified.
  * @property integer $proximity_alert_radius Optional. For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified.
@@ -27,10 +27,10 @@ class InlineQueryResultLocation extends InlineQueryResult
 	protected array $attributes = [
 		'type' => 'string',
 		'id' => 'string',
-		'latitude' => 'double number',
-		'longitude' => 'double number',
+		'latitude' => 'double',
+		'longitude' => 'double',
 		'title' => 'string',
-		'horizontal_accuracy' => 'double number',
+		'horizontal_accuracy' => 'double',
 		'live_period' => 'integer',
 		'heading' => 'integer',
 		'proximity_alert_radius' => 'integer',

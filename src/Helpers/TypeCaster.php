@@ -2,9 +2,9 @@
 
 namespace WeStacks\TeleBot\Helpers;
 
-use Exception;
+use Throwable;
 use WeStacks\TeleBot\Exception\TeleBotObjectException;
-use WeStacks\TeleBot\Interfaces\TelegramObject;
+use WeStacks\TeleBot\Abstract\TelegramObject;
 use WeStacks\TeleBot\Objects\InputFile;
 
 class TypeCaster
@@ -43,7 +43,7 @@ class TypeCaster
      */
     public static function cast($value, $type)
     {
-        if (is_array($type)) {
+        if (preg_match("/\[\]$/", $type)) {
             return static::castArrayOfTypes($value, $type);
         }
 
@@ -54,7 +54,7 @@ class TypeCaster
                 try {
                     return static::cast($value, $_type);
                 }
-                catch (Exception $e) {
+                catch (Throwable $e) {
                     // We need to check eash avaliable type, so just skip exception.
                 }
             }
@@ -81,7 +81,7 @@ class TypeCaster
         $array = [];
 
         foreach ($object as $key => $value) {
-            if ((is_object($value) && is_subclass_of($value, TelegramObject::class)) || is_array($value)) {
+            if (is_iterable($value)) {
                 $value = static::stripArrays($value);
             }
             $array[$key] = $value;
@@ -97,8 +97,9 @@ class TypeCaster
      *
      * @return array
      */
-    public static function flatten($object)
+    public static function flatten($object, array $parameters)
     {
+        $object = static::castValues($object, $parameters);
         $flat = [];
         $files = [];
         static::extractFiles($object, $files);
@@ -113,17 +114,19 @@ class TypeCaster
         return array_merge($flat, $files);
     }
 
-    private static function castArrayOfTypes($object, array $type)
+    private static function castArrayOfTypes($object, string $type)
     {
+        $type = preg_replace("/\[\]$/", "", $type, 1, $count);
+
         if (!is_array($object)) {
-            throw TeleBotObjectException::uncastableType(gettype($type), gettype($object));
+            throw new TeleBotObjectException("Unable cast value of type '".gettype($object)."' to type '$type\[\]'");
         }
 
-        foreach ($object as $subKey => $subValue) {
-            $object[$subKey] = static::cast($subValue, $type[0]);
+        foreach ($object as $key => $_value) {
+            $value[$key] = static::cast($_value, $type);
         }
 
-        return $object;
+        return $value;
     }
 
     private static function isCasted($object, string $type)
@@ -146,8 +149,8 @@ class TypeCaster
             return $object;
         }
 
-        if (class_exists($type)) {
-            return $type::create($object);
+        if (class_exists($class = $type) || class_exists($class = "WeStacks\\TeleBot\\Objects\\$type")) {
+            return $class::create($object);
         }
 
         throw TeleBotObjectException::uncastableType($type, $value_type);

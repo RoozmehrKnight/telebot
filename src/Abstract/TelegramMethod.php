@@ -37,17 +37,19 @@ abstract class TelegramMethod
 
     public function __invoke($arguments = [])
     {
-        $promise = $this->client->postAsync("{$this->api}/bot{$this->token}/{$this->method}", [
-            'multipart' => TypeCaster::flatten($arguments, $this->parameters)
-        ])->then(function (ResponseInterface $result) {
-            $result = json_decode($result->getBody());
+        $data = TypeCaster::flatten($arguments, $this->parameters);
+        $data = empty($data) ? [] : ['multipart' => $data];
 
-            if (!$result->ok && $this->exceptions) {
-                throw TeleBotRequestException::requestError($result);
-            }
+        $promise = $this->client->postAsync("{$this->api}/bot{$this->token}/{$this->method}", $data)
+            ->then(function (ResponseInterface $result) {
+                $result = json_decode($result->getBody());
 
-            return $result->ok ? TypeCaster::cast($result->result, $this->expect) : false;
-        });
+                if (!$result->ok && $this->exceptions) {
+                    throw TeleBotRequestException::requestError($result);
+                }
+
+                return $result->ok ? TypeCaster::cast($result->result, $this->expect) : false;
+            });
 
         return $this->async ? $promise : $promise->wait();
     }

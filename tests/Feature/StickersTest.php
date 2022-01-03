@@ -3,7 +3,7 @@
 namespace WeStacks\TeleBot\Tests\Feature;
 
 use PHPUnit\Framework\TestCase;
-use WeStacks\TeleBot\Objects\Stickers\StickerSet;
+use WeStacks\TeleBot\Objects\StickerSet;
 use WeStacks\TeleBot\TeleBot;
 
 class StickersTest extends TestCase

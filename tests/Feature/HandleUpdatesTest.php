@@ -27,7 +27,7 @@ class HandleUpdatesTest extends TestCase
     {
         global $bot;
         $this->bot = $bot;
-        $this->updates = $this->bot->getUpdates([]);
+        $this->updates = $this->bot->getUpdates();
     }
 
     // You should send any message to your bot in order to have at least one update

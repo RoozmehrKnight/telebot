@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Promise\PromiseInterface;
 use WeStacks\TeleBot\Exception\TeleBotMehtodException;
 use WeStacks\TeleBot\Exception\TeleBotObjectException;
-use WeStacks\TeleBot\Interfaces\TelegramMethod;
+use WeStacks\TeleBot\Abstract\TelegramMethod;
 use WeStacks\TeleBot\Traits\HandlesUpdates;
 use WeStacks\TeleBot\Traits\HasTelegramMethods;
 use WeStacks\TeleBot\Objects\MessageId;

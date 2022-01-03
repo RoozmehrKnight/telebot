@@ -2,7 +2,7 @@
 
 namespace WeStacks\TeleBot\Tests\Helpers;
 
-use WeStacks\TeleBot\Interfaces\UpdateHandler;
+use WeStacks\TeleBot\Abstract\UpdateHandler;
 use WeStacks\TeleBot\Objects\Update;
 use WeStacks\TeleBot\TeleBot;
 

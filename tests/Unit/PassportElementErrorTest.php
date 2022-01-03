@@ -4,16 +4,16 @@ namespace WeStacks\TeleBot\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use WeStacks\TeleBot\Exception\TeleBotObjectException;
-use WeStacks\TeleBot\Objects\Passport\PassportElementError;
-use WeStacks\TeleBot\Objects\Passport\PassportElementErrorDataField;
-use WeStacks\TeleBot\Objects\Passport\PassportElementErrorFile;
-use WeStacks\TeleBot\Objects\Passport\PassportElementErrorFiles;
-use WeStacks\TeleBot\Objects\Passport\PassportElementErrorFrontSide;
-use WeStacks\TeleBot\Objects\Passport\PassportElementErrorReverseSide;
-use WeStacks\TeleBot\Objects\Passport\PassportElementErrorSelfie;
-use WeStacks\TeleBot\Objects\Passport\PassportElementErrorTranslationFile;
-use WeStacks\TeleBot\Objects\Passport\PassportElementErrorTranslationFiles;
-use WeStacks\TeleBot\Objects\Passport\PassportElementErrorUnspecified;
+use WeStacks\TeleBot\Objects\PassportElementError;
+use WeStacks\TeleBot\Objects\PassportElementErrorDataField;
+use WeStacks\TeleBot\Objects\PassportElementErrorFile;
+use WeStacks\TeleBot\Objects\PassportElementErrorFiles;
+use WeStacks\TeleBot\Objects\PassportElementErrorFrontSide;
+use WeStacks\TeleBot\Objects\PassportElementErrorReverseSide;
+use WeStacks\TeleBot\Objects\PassportElementErrorSelfie;
+use WeStacks\TeleBot\Objects\PassportElementErrorTranslationFile;
+use WeStacks\TeleBot\Objects\PassportElementErrorTranslationFiles;
+use WeStacks\TeleBot\Objects\PassportElementErrorUnspecified;
 
 class PassportElementErrorTest extends TestCase
 {
