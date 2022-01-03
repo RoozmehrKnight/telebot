@@ -2,33 +2,20 @@
 
 namespace WeStacks\TeleBot\Methods;
 
-use WeStacks\TeleBot\Helpers\TypeCaster;
-use WeStacks\TeleBot\Interfaces\TelegramMethod;
+use WeStacks\TeleBot\Abstract\TelegramMethod;
 use WeStacks\TeleBot\Objects\BotCommand;
 use WeStacks\TeleBot\Objects\BotCommandScope;
 
+/**
+ * Use this method to change the list of the bot's commands. See https://core.telegram.org/bots#commandshttps://core.telegram.org/bots#commands for more details about bot commands. Returns True on success.
+ *
+ * @property BotCommand[] $commands __Required: Yes__. A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.
+ * @property BotCommandScope $scope __Required: Optional__. A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault.
+ * @property string $language_code __Required: Optional__. A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+ */
 class SetMyCommandsMethod extends TelegramMethod
 {
-    protected function request()
-    {
-        return [
-            'type' => 'POST',
-            'url' => "{$this->api}/bot{$this->token}/setMyCommands",
-            'send' => $this->send(),
-            'expect' => 'boolean',
-        ];
-    }
-
-    private function send()
-    {
-        $parameters = [
-            'commands' => [BotCommand::class],
-            'scope' => BotCommandScope::class,
-            'language_code' => 'string',
-        ];
-
-        $object = TypeCaster::castValues($this->arguments[0] ?? [], $parameters);
-
-        return ['json' => TypeCaster::stripArrays($object)];
-    }
+	protected string $method = 'setMyCommands';
+	protected string $expect = 'boolean';
+	protected array $parameters = ['commands' => 'BotCommand[]', 'scope' => 'BotCommandScope', 'language_code' => 'string'];
 }

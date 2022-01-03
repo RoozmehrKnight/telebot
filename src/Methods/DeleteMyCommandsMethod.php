@@ -2,31 +2,18 @@
 
 namespace WeStacks\TeleBot\Methods;
 
-use WeStacks\TeleBot\Helpers\TypeCaster;
-use WeStacks\TeleBot\Interfaces\TelegramMethod;
+use WeStacks\TeleBot\Abstract\TelegramMethod;
 use WeStacks\TeleBot\Objects\BotCommandScope;
 
+/**
+ * Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, [higher level commands](https://core.telegram.org/bots/api#determining-list-of-commands) will be shown to affected users. Returns True on success.
+ *
+ * @property BotCommandScope $scope __Required: Optional__. A JSON-serialized object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault.
+ * @property string $language_code __Required: Optional__. A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands
+ */
 class DeleteMyCommandsMethod extends TelegramMethod
 {
-    protected function request()
-    {
-        return [
-            'type' => 'POST',
-            'url' => "{$this->api}/bot{$this->token}/deleteMyCommands",
-            'send' => $this->send(),
-            'expect' => 'boolean',
-        ];
-    }
-
-    private function send()
-    {
-        $parameters = [
-            'scope' => BotCommandScope::class,
-            'language_code' => 'string',
-        ];
-
-        $object = TypeCaster::castValues($this->arguments[0] ?? [], $parameters);
-
-        return ['json' => TypeCaster::stripArrays($object)];
-    }
+	protected string $method = 'deleteMyCommands';
+	protected string $expect = 'boolean';
+	protected array $parameters = ['scope' => 'BotCommandScope', 'language_code' => 'string'];
 }

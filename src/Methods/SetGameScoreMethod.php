@@ -2,36 +2,31 @@
 
 namespace WeStacks\TeleBot\Methods;
 
-use WeStacks\TeleBot\Helpers\TypeCaster;
-use WeStacks\TeleBot\Interfaces\TelegramMethod;
-use WeStacks\TeleBot\Objects\Message;
+use WeStacks\TeleBot\Abstract\TelegramMethod;
 
+/**
+ * Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the [Message](https://core.telegram.org/bots/api#message) is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False.
+ *
+ * @property integer $user_id __Required: Yes__. User identifier
+ * @property integer $score __Required: Yes__. New score, must be non-negative
+ * @property boolean $force __Required: Optional__. Pass True, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters
+ * @property boolean $disable_edit_message __Required: Optional__. Pass True, if the game message should not be automatically edited to include the current scoreboard
+ * @property integer $chat_id __Required: Optional__. Required if inline_message_id is not specified. Unique identifier for the target chat
+ * @property integer $message_id __Required: Optional__. Required if inline_message_id is not specified. Identifier of the sent message
+ * @property string $inline_message_id __Required: Optional__. Required if chat_id and message_id are not specified. Identifier of the inline message
+ */
 class SetGameScoreMethod extends TelegramMethod
 {
-    protected function request()
-    {
-        return [
-            'type' => 'POST',
-            'url' => "{$this->api}/bot{$this->token}/setGameScore",
-            'send' => $this->send(),
-            'expect' => Message::class,
-        ];
-    }
+	protected string $method = 'setGameScore';
+	protected string $expect = 'Message|boolean';
 
-    private function send()
-    {
-        $parameters = [
-            'user_id' => 'integer',
-            'score' => 'integer',
-            'force' => 'boolean',
-            'disable_edit_message' => 'boolean',
-            'chat_id' => 'string',
-            'message_id' => 'integer',
-            'inline_message_id' => 'string',
-        ];
-
-        $object = TypeCaster::castValues($this->arguments[0] ?? [], $parameters);
-
-        return ['json' => TypeCaster::stripArrays($object)];
-    }
+	protected array $parameters = [
+		'user_id' => 'integer',
+		'score' => 'integer',
+		'force' => 'boolean',
+		'disable_edit_message' => 'boolean',
+		'chat_id' => 'integer',
+		'message_id' => 'integer',
+		'inline_message_id' => 'string',
+	];
 }

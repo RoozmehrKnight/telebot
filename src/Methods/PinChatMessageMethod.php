@@ -2,31 +2,18 @@
 
 namespace WeStacks\TeleBot\Methods;
 
-use WeStacks\TeleBot\Helpers\TypeCaster;
-use WeStacks\TeleBot\Interfaces\TelegramMethod;
+use WeStacks\TeleBot\Abstract\TelegramMethod;
 
+/**
+ * Use this method to add a message to the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel. Returns True on success.
+ *
+ * @property string $chat_id __Required: Yes__. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+ * @property integer $message_id __Required: Yes__. Identifier of a message to pin
+ * @property boolean $disable_notification __Required: Optional__. Pass True, if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats.
+ */
 class PinChatMessageMethod extends TelegramMethod
 {
-    protected function request()
-    {
-        return [
-            'type' => 'POST',
-            'url' => "{$this->api}/bot{$this->token}/pinChatMessage",
-            'send' => $this->send(),
-            'expect' => 'boolean',
-        ];
-    }
-
-    private function send()
-    {
-        $parameters = [
-            'chat_id' => 'string',
-            'message_id' => 'integer',
-            'disable_notification' => 'boolean',
-        ];
-
-        $object = TypeCaster::castValues($this->arguments[0] ?? [], $parameters);
-
-        return ['json' => TypeCaster::stripArrays($object)];
-    }
+	protected string $method = 'pinChatMessage';
+	protected string $expect = 'boolean';
+	protected array $parameters = ['chat_id' => 'string', 'message_id' => 'integer', 'disable_notification' => 'boolean'];
 }

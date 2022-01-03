@@ -2,20 +2,22 @@
 
 namespace WeStacks\TeleBot\Objects;
 
+use WeStacks\TeleBot\Abstract\TelegramObject;
 use WeStacks\TeleBot\Exception\TeleBotFileException;
 
+/**
+ * This object represents the contents of a file to be uploaded. Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.
+ */
 class InputFile
 {
     /**
      * File name.
-     *
      * @var null|string
      */
     protected $filename;
 
     /**
      * File contents.
-     *
      * @var bool|resource|string
      */
     protected $contents;

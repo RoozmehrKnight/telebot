@@ -2,33 +2,26 @@
 
 namespace WeStacks\TeleBot\Methods;
 
-use WeStacks\TeleBot\Helpers\TypeCaster;
-use WeStacks\TeleBot\Interfaces\TelegramMethod;
-use WeStacks\TeleBot\Objects\Payments\ShippingOption;
+use WeStacks\TeleBot\Abstract\TelegramMethod;
+use WeStacks\TeleBot\Objects\ShippingOption;
 
+/**
+ * If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an [Update](https://core.telegram.org/bots/api#update) with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned.
+ *
+ * @property string $shipping_query_id __Required: Yes__. Unique identifier for the query to be answered
+ * @property boolean $ok __Required: Yes__. Specify True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible)
+ * @property ShippingOption[] $shipping_options __Required: Optional__. Required if ok is True. A JSON-serialized array of available shipping options.
+ * @property string $error_message __Required: Optional__. Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable'). Telegram will display this message to the user.
+ */
 class AnswerShippingQueryMethod extends TelegramMethod
 {
-    protected function request()
-    {
-        return [
-            'type' => 'POST',
-            'url' => "{$this->api}/bot{$this->token}/answerShippingQuery",
-            'send' => $this->send(),
-            'expect' => 'boolean',
-        ];
-    }
+	protected string $method = 'answerShippingQuery';
+	protected string $expect = 'boolean';
 
-    private function send()
-    {
-        $parameters = [
-            'shipping_query_id' => 'string',
-            'ok' => 'boolean',
-            'shipping_options' => [ShippingOption::class],
-            'error_message' => 'string',
-        ];
-
-        $object = TypeCaster::castValues($this->arguments[0] ?? [], $parameters);
-
-        return ['json' => TypeCaster::stripArrays($object)];
-    }
+	protected array $parameters = [
+		'shipping_query_id' => 'string',
+		'ok' => 'boolean',
+		'shipping_options' => 'ShippingOption[]',
+		'error_message' => 'string',
+	];
 }

@@ -2,19 +2,14 @@
 
 namespace WeStacks\TeleBot\Objects;
 
-use WeStacks\TeleBot\Interfaces\TelegramObject;
+use WeStacks\TeleBot\Abstract\TelegramObject;
 
 /**
  * This object represents a service message about a voice chat ended in the chat.
  *
- * @property int    $duration       Voice chat duration; in seconds
+ * @property integer $duration Voice chat duration in seconds
  */
 class VoiceChatEnded extends TelegramObject
 {
-    protected function relations()
-    {
-        return [
-            'duration' => 'integer',
-        ];
-    }
+	protected array $attributes = ['duration' => 'integer'];
 }

@@ -2,32 +2,18 @@
 
 namespace WeStacks\TeleBot\Methods;
 
-use WeStacks\TeleBot\Helpers\TypeCaster;
-use WeStacks\TeleBot\Interfaces\TelegramMethod;
-use WeStacks\TeleBot\Objects\BotCommand;
+use WeStacks\TeleBot\Abstract\TelegramMethod;
 use WeStacks\TeleBot\Objects\BotCommandScope;
 
+/**
+ * Use this method to get the current list of the bot's commands for the given scope and user language. Returns Array of [BotCommand](https://core.telegram.org/bots/api#botcommand) on success. If commands aren't set, an empty list is returned.
+ *
+ * @property BotCommandScope $scope __Required: Optional__. A JSON-serialized object, describing scope of users. Defaults to BotCommandScopeDefault.
+ * @property string $language_code __Required: Optional__. A two-letter ISO 639-1 language code or an empty string
+ */
 class GetMyCommandsMethod extends TelegramMethod
 {
-    protected function request()
-    {
-        return [
-            'type' => 'POST',
-            'url' => "{$this->api}/bot{$this->token}/getMyCommands",
-            'send' => $this->send(),
-            'expect' => [BotCommand::class],
-        ];
-    }
-
-    private function send()
-    {
-        $parameters = [
-            'scope' => BotCommandScope::class,
-            'language_code' => 'string',
-        ];
-
-        $object = TypeCaster::castValues($this->arguments[0] ?? [], $parameters);
-
-        return ['json' => TypeCaster::stripArrays($object)];
-    }
+	protected string $method = 'getMyCommands';
+	protected string $expect = 'BotCommand[]';
+	protected array $parameters = ['scope' => 'BotCommandScope', 'language_code' => 'string'];
 }

@@ -2,31 +2,17 @@
 
 namespace WeStacks\TeleBot\Methods;
 
-use WeStacks\TeleBot\Helpers\TypeCaster;
-use WeStacks\TeleBot\Interfaces\TelegramMethod;
-use WeStacks\TeleBot\Objects\ChatInviteLink;
+use WeStacks\TeleBot\Abstract\TelegramMethod;
 
+/**
+ * Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as [ChatInviteLink](https://core.telegram.org/bots/api#chatinvitelink) object.
+ *
+ * @property string $chat_id __Required: Yes__. Unique identifier of the target chat or username of the target channel (in the format @channelusername)
+ * @property string $invite_link __Required: Yes__. The invite link to revoke
+ */
 class RevokeChatInviteLinkMethod extends TelegramMethod
 {
-    protected function request()
-    {
-        return [
-            'type' => 'POST',
-            'url' => "{$this->api}/bot{$this->token}/revokeChatInviteLink",
-            'send' => $this->send(),
-            'expect' => ChatInviteLink::class,
-        ];
-    }
-
-    private function send()
-    {
-        $parameters = [
-            'chat_id' => 'string',
-            'invite_link' => 'string',
-        ];
-
-        $object = TypeCaster::castValues($this->arguments[0] ?? [], $parameters);
-
-        return ['json' => TypeCaster::stripArrays($object)];
-    }
+	protected string $method = 'revokeChatInviteLink';
+	protected string $expect = 'ChatInviteLink';
+	protected array $parameters = ['chat_id' => 'string', 'invite_link' => 'string'];
 }
