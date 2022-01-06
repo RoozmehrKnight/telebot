@@ -135,7 +135,7 @@ trait HandlesUpdates
     {
         if (is_null($update)) {
             try {
-                $data = json_decode(file_get_contents('php://input'), true) ?? request()->all();
+                $data = json_decode(file_get_contents('php://input'), true) ?? null;
             }
             catch (Exception $e) {
                 $data = null;
