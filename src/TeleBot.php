@@ -98,12 +98,12 @@ use WeStacks\TeleBot\Objects\WebhookInfo;
  * @method false|PromiseInterface|UserProfilePhotos    getUserProfilePhotos(array $parameters = [])            Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos object.
  * @method false|PromiseInterface|User                 getMe()                                                 A simple method for testing your bot's auth token. Requires no parameters. Returns basic information about the bot in form of a User object.
  * @method false|PromiseInterface|WebhookInfo          getWebhookInfo()                                        Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty.
- * 
+ *
  * @method false|PromiseInterface|true                 close()                                                 Use this method to close the bot instance before moving it from one local server to another. You need to delete the webhook before calling this method to ensure that the bot isn't launched again after server restart. The method will return error 429 in the first 10 minutes after the bot is launched. Returns True on success. Requires no parameters.
  * @method false|PromiseInterface|true                 logOut()                                                Use this method to log out from the cloud Bot API server before launching the bot locally. You must log out the bot before running it locally, otherwise there is no guarantee that the bot will receive updates. After a successful call, you can immediately log in on a local server, but will not be able to log in back to the cloud Bot API server for 10 minutes. Returns True on success. Requires no parameters.
  * @method false|PromiseInterface|MessageId            copyMessage(array $parameters = [])                     Use this method to copy messages of any kind. The method is analogous to the method forwardMessages, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
  * @method false|PromiseInterface|true                 unpinAllChatMessages(array $parameters = [])            Use this method to clear the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' admin right in a supergroup or 'can_edit_messages' admin right in a channel. Returns True on success.
- * 
+ *
  * @method false|PromiseInterface|ChatInviteLink       createChatInviteLink(array $parameters = [])            Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. The link can be revoked using the method revokeChatInviteLink. Returns the new invite link as ChatInviteLink object.
  * @method false|PromiseInterface|ChatInviteLink       editChatInviteLink(array $parameters = [])              Use this method to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns the edited invite link as a ChatInviteLink object.
  * @method false|PromiseInterface|ChatInviteLink       revokeChatInviteLink(array $parameters = [])            Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns the revoked invite link as ChatInviteLink object.
@@ -170,16 +170,15 @@ class TeleBot
             'api_url' => $config['api_url'] ?? 'https://api.telegram.org',
             'webhook' => $config['webhook'] ?? [],
             'poll' => $config['poll'] ?? [],
-            'handlers' => $config['handlers'] ?? null
+            'kernel' => $config['kernel'] ?? TeleBotKernel::class,
+            'handlers' => $config['handlers'] ?? [],
         ];
 
-        if (is_subclass_of($hanlers = $this->config['handlers'] ?? [], HandlerKernel::class)) {
-            $this->kernel = new $hanlers;
-        }
-        else {
-            $this->kernel = new HandlerKernel($hanlers);
+        if (!is_subclass_of($this->config['kernel'], TeleBotKernel::class) && $this->config['kernel'] != TeleBotKernel::class) {
+            throw TeleBotObjectException::uncastableType(TeleBotKernel::class, $this->config['kernel']);
         }
 
+        $this->kernel = new $this->config['kernel']($this->config['handlers']);
         $this->client = new Client(['http_errors' => false]);
     }
 
@@ -233,7 +232,7 @@ class TeleBot
 
     /**
      * Get bot config
-     * @return mixed 
+     * @return mixed
      */
     public function getConfig()
     {

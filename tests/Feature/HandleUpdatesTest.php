@@ -34,8 +34,9 @@ class HandleUpdatesTest extends TestCase
     public function testHandleUpdates()
     {
         $this->bot->clearHandlers();
-        $this->bot->addHandler([function (Update $update) {
+        $this->bot->addHandler([function (TeleBot $bot, Update $update, $next) {
             echo $update;
+            return $next();
         }]);
 
         foreach ($this->updates as $update) {
@@ -62,9 +63,10 @@ class HandleUpdatesTest extends TestCase
         $this->bot->clearHandlers();
         $this->bot->addHandler(StartCommandHandler::class);
 
-        $commands = $this->bot->getLocalCommands();
-        $commands_set = $this->bot->setMyCommands(['commands' => $commands]);
-        $this->assertTrue($commands_set);
+        foreach ($this->bot->getLocalCommands() as $group) {
+            $commands_set = $this->bot->setMyCommands($group);
+            $this->assertTrue($commands_set);
+        }
 
         foreach ($this->updates as $update) {
             $this->bot->handleUpdate($update);
@@ -73,8 +75,11 @@ class HandleUpdatesTest extends TestCase
         $commands_api = $this->bot->getMyCommands();
 
         $this->assertContainsOnlyInstancesOf(BotCommand::class, $commands_api);
-        $commands_set = $this->bot->deleteMyCommands();
-        $this->assertTrue($commands_set);
+
+        foreach ($this->bot->getLocalCommands() as $group) {
+            $commands_set = $this->bot->deleteMyCommands($group);
+            $this->assertTrue($commands_set);
+        }
 
         $this->expectException(TeleBotMehtodException::class);
         $this->bot->addHandler(Update::class);
@@ -98,11 +103,6 @@ class HandleUpdatesTest extends TestCase
     {
         $this->expectException(TeleBotMehtodException::class);
         $this->bot->callHandler('something wrong', new Update([]), true);
-    }
-
-    public function testNoUpdates()
-    {
-        $this->assertFalse($this->bot->handleUpdate());
     }
 
     public function testGetConfig()

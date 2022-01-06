@@ -137,10 +137,25 @@ abstract class UpdateHandler
      *
      * @return bool
      */
-    abstract public static function trigger(Update $update, TeleBot $bot);
+    abstract public function trigger();
 
     /**
      * This function should handle updates.
      */
     abstract public function handle();
+
+    /**
+     * Handling proccess.
+     *
+     * @param callable|null $next
+     * @return $next
+     */
+    public function __invoke($next)
+    {
+        if ($this->trigger()) {
+            $this->handle();
+        }
+
+        return $next();
+    }
 }

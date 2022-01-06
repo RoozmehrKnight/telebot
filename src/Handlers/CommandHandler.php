@@ -3,7 +3,9 @@
 namespace WeStacks\TeleBot\Handlers;
 
 use WeStacks\TeleBot\Abstract\UpdateHandler;
+use WeStacks\TeleBot\Exception\TeleBotObjectException;
 use WeStacks\TeleBot\Objects\BotCommand;
+use WeStacks\TeleBot\Objects\BotCommandScope;
 use WeStacks\TeleBot\Objects\Update;
 use WeStacks\TeleBot\TeleBot;
 
@@ -27,11 +29,23 @@ abstract class CommandHandler extends UpdateHandler
     protected static $description = null;
 
     /**
+     * Get scopes for current command. Used to register command for specific users or chats.
+     *
+     * @return BotCommandScope[]
+     */
+    public static function getCommandScopes()
+    {
+        return [
+            BotCommandScope::create([ 'type' => 'default' ])
+        ];
+    }
+
+    /**
      * Get BotCommand foreach command `aliases` and `description`.
      *
      * @return Array<BotCommand>
      */
-    public static function getBotCommand()
+    public final static function getBotCommand()
     {
         $data = [];
 
@@ -45,20 +59,20 @@ abstract class CommandHandler extends UpdateHandler
         return $data;
     }
 
-    public static function trigger(Update $update, TeleBot $bot)
+    public final function trigger()
     {
-        if (!isset($update->message) || !isset($update->message->entities)) {
+        if (!isset($this->update->message) || !isset($this->update->message->entities)) {
             return false;
         }
 
-        foreach ($update->message->entities as $entity) {
+        foreach ($this->update->message->entities as $entity) {
             if ('bot_command' != $entity->type) {
                 continue;
             }
 
-            $command = substr($update->message->text, $entity->offset, $entity->length);
+            $command = substr($this->update->message->text, $entity->offset, $entity->length);
 
-            if (in_array($command, static::getSignedAliases($bot))) {
+            if (in_array($command, static::getSignedAliases($this->bot))) {
                 return true;
             }
         }
